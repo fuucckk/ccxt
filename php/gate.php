@@ -10,7 +10,7 @@ use ccxt\abstract\gate as Exchange;
 
 class gate extends Exchange {
 
-    public function describe() {
+    public function describe(): mixed {
         return $this->deep_extend(parent::describe(), array(
             'id' => 'gate',
             'name' => 'Gate.io',
@@ -737,17 +737,20 @@ class gate extends Exchange {
                         'limit' => 1000,
                         'daysBack' => null,
                         'untilDays' => 30,
+                        'symbolRequired' => false,
                     ),
                     'fetchOrder' => array(
                         'marginMode' => false,
                         'trigger' => true,
                         'trailing' => false,
+                        'symbolRequired' => true,
                     ),
                     'fetchOpenOrders' => array(
                         'marginMode' => true,
                         'trigger' => true,
                         'trailing' => false,
                         'limit' => 100,
+                        'symbolRequired' => false,
                     ),
                     'fetchOrders' => null,
                     'fetchClosedOrders' => array(
@@ -758,6 +761,7 @@ class gate extends Exchange {
                         'untilDays' => 30,
                         'daysBack' => null,
                         'daysBackCanceled' => null,
+                        'symbolRequired' => false,
                     ),
                     'fetchOHLCV' => array(
                         'limit' => 1000,
@@ -1060,7 +1064,7 @@ class gate extends Exchange {
         return $this->privateUnifiedPutUnifiedMode ($params);
     }
 
-    public function fetch_time($params = array ()) {
+    public function fetch_time($params = array ()): ?int {
         /**
          * fetches the current integer timestamp in milliseconds from the exchange server
          *
@@ -1821,7 +1825,7 @@ class gate extends Exchange {
             $active = $listed && $tradeEnabled && $withdrawEnabled && $depositEnabled;
             if ($this->safe_value($result, $code) === null) {
                 $result[$code] = array(
-                    'id' => strtolower($code),
+                    'id' => $currency,
                     'code' => $code,
                     'info' => null,
                     'name' => null,

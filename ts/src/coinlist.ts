@@ -10,7 +10,7 @@ import type { Account, Balances, Currencies, Currency, Dict, Int, Market, Num, O
  * @augments Exchange
  */
 export default class coinlist extends Exchange {
-    describe () {
+    describe (): any {
         return this.deepExtend (super.describe (), {
             'id': 'coinlist',
             'name': 'Coinlist',
@@ -238,17 +238,20 @@ export default class coinlist extends Exchange {
                         'limit': 500,
                         'daysBack': 100000,
                         'untilDays': 100000,
+                        'symbolRequired': false,
                     },
                     'fetchOrder': {
                         'marginMode': false,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': false,
                     },
                     'fetchOpenOrders': {
                         'marginMode': false,
                         'limit': 500,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': false,
                     },
                     'fetchOrders': {
                         'marginMode': false,
@@ -257,6 +260,7 @@ export default class coinlist extends Exchange {
                         'untilDays': 100000,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': false,
                     },
                     'fetchClosedOrders': {
                         'marginMode': false,
@@ -266,6 +270,7 @@ export default class coinlist extends Exchange {
                         'untilDays': 100000,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': false,
                     },
                     'fetchOHLCV': {
                         'limit': 300,
@@ -394,7 +399,7 @@ export default class coinlist extends Exchange {
      * @param {object} [params] extra parameters specific to the exchange API endpoint
      * @returns {int} the current integer timestamp in milliseconds from the exchange server
      */
-    async fetchTime (params = {}) {
+    async fetchTime (params = {}): Promise<Int> {
         const response = await this.publicGetV1Time (params);
         //
         //     {

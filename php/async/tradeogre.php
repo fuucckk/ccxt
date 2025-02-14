@@ -10,12 +10,12 @@ use ccxt\async\abstract\tradeogre as Exchange;
 use ccxt\ExchangeError;
 use ccxt\ArgumentsRequired;
 use ccxt\BadRequest;
-use React\Async;
-use React\Promise\PromiseInterface;
+use \React\Async;
+use \React\Promise\PromiseInterface;
 
 class tradeogre extends Exchange {
 
-    public function describe() {
+    public function describe(): mixed {
         return $this->deep_extend(parent::describe(), array(
             'id' => 'tradeogre',
             'name' => 'tradeogre',
@@ -193,12 +193,14 @@ class tradeogre extends Exchange {
                         'marginMode' => false,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                     ),
                     'fetchOpenOrders' => array(
                         'marginMode' => false,
                         'limit' => null,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                     ),
                     'fetchOrders' => null,
                     'fetchClosedOrders' => null,

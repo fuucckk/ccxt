@@ -10,7 +10,7 @@ use ccxt\abstract\cex as Exchange;
 
 class cex extends Exchange {
 
-    public function describe() {
+    public function describe(): mixed {
         return $this->deep_extend(parent::describe(), array(
             'id' => 'cex',
             'name' => 'CEX.IO',
@@ -140,6 +140,7 @@ class cex extends Exchange {
                         'limit' => 1000,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                     ),
                     'fetchOrders' => null,
                     'fetchClosedOrders' => array(
@@ -150,6 +151,7 @@ class cex extends Exchange {
                         'untilDays' => 100000,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                     ),
                     'fetchOHLCV' => array(
                         'limit' => 1000,
@@ -452,7 +454,7 @@ class cex extends Exchange {
         ));
     }
 
-    public function fetch_time($params = array ()) {
+    public function fetch_time($params = array ()): ?int {
         /**
          * fetches the current integer $timestamp in milliseconds from the exchange server
          * @param {array} [$params] extra parameters specific to the exchange API endpoint

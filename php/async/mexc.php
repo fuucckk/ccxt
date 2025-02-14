@@ -15,13 +15,13 @@ use ccxt\InvalidAddress;
 use ccxt\InvalidOrder;
 use ccxt\NotSupported;
 use ccxt\Precise;
-use React\Async;
-use React\Promise;
-use React\Promise\PromiseInterface;
+use \React\Async;
+use \React\Promise;
+use \React\Promise\PromiseInterface;
 
 class mexc extends Exchange {
 
-    public function describe() {
+    public function describe(): mixed {
         return $this->deep_extend(parent::describe(), array(
             'id' => 'mexc',
             'name' => 'MEXC Global',
@@ -720,17 +720,20 @@ class mexc extends Exchange {
                         'limit' => 100,
                         'daysBack' => 30,
                         'untilDays' => null,
+                        'symbolRequired' => true,
                     ),
                     'fetchOrder' => array(
                         'marginMode' => false,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => true,
                     ),
                     'fetchOpenOrders' => array(
                         'marginMode' => true,
                         'limit' => null,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => true,
                     ),
                     'fetchOrders' => array(
                         'marginMode' => true,
@@ -739,6 +742,7 @@ class mexc extends Exchange {
                         'untilDays' => 7,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => true,
                     ),
                     'fetchClosedOrders' => array(
                         'marginMode' => true,
@@ -748,6 +752,7 @@ class mexc extends Exchange {
                         'untilDays' => 7,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => true,
                     ),
                     'fetchOHLCV' => array(
                         'limit' => 1000,
@@ -1005,7 +1010,7 @@ class mexc extends Exchange {
         }) ();
     }
 
-    public function fetch_time($params = array ()) {
+    public function fetch_time($params = array ()): PromiseInterface {
         return Async\async(function () use ($params) {
             /**
              * fetches the current integer timestamp in milliseconds from the exchange server
@@ -2286,10 +2291,8 @@ class mexc extends Exchange {
             if (!$market['spot']) {
                 throw new NotSupported($this->id . ' createMarketBuyOrderWithCost() supports spot orders only');
             }
-            $req = array(
-                'cost' => $cost,
-            );
-            return Async\await($this->create_order($symbol, 'market', 'buy', 0, null, $this->extend($req, $params)));
+            $params['cost'] = $cost;
+            return Async\await($this->create_order($symbol, 'market', 'buy', 0, null, $params));
         }) ();
     }
 
@@ -2310,10 +2313,8 @@ class mexc extends Exchange {
             if (!$market['spot']) {
                 throw new NotSupported($this->id . ' createMarketBuyOrderWithCost() supports spot orders only');
             }
-            $req = array(
-                'cost' => $cost,
-            );
-            return Async\await($this->create_order($symbol, 'market', 'sell', 0, null, $this->extend($req, $params)));
+            $params['cost'] = $cost;
+            return Async\await($this->create_order($symbol, 'market', 'sell', 0, null, $params));
         }) ();
     }
 
@@ -2337,7 +2338,7 @@ class mexc extends Exchange {
              * @param {bool} [$params->postOnly] if true, the order will only be posted if it will be a maker order
              * @param {bool} [$params->reduceOnly] *contract only* indicates if this order is to reduce the size of a position
              * @param {bool} [$params->hedged] *swap only* true for hedged mode, false for one way mode, default is false
-             *
+             * @param {string} [$params->timeInForce] 'IOC' or 'FOK', default is 'GTC'
              * EXCHANGE SPECIFIC PARAMETERS
              * @param {int} [$params->leverage] *contract only* leverage is necessary on isolated margin
              * @param {long} [$params->positionId] *contract only* it is recommended to property_exists($this, fill) parameter when closing a position
@@ -2402,6 +2403,15 @@ class mexc extends Exchange {
         list($postOnly, $params) = $this->handle_post_only($type === 'market', $type === 'LIMIT_MAKER', $params);
         if ($postOnly) {
             $request['type'] = 'LIMIT_MAKER';
+        }
+        $tif = $this->safe_string($params, 'timeInForce');
+        if ($tif !== null) {
+            $params = $this->omit($params, 'timeInForce');
+            if ($tif === 'IOC') {
+                $request['type'] = 'IMMEDIATE_OR_CANCEL';
+            } elseif ($tif === 'FOK') {
+                $request['type'] = 'FILL_OR_KILL';
+            }
         }
         return $this->extend($request, $params);
     }
@@ -4951,7 +4961,7 @@ class mexc extends Exchange {
                 $rawNetwork = $this->safe_string($params, 'network');
                 if ($rawNetwork !== null) {
                     $params = $this->omit($params, 'network');
-                    $request['coin'] .= '-' . $rawNetwork;
+                    $request['coin'] = $request['coin'] . '-' . $rawNetwork;
                 }
             }
             if ($since !== null) {

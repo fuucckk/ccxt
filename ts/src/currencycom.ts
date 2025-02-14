@@ -15,7 +15,7 @@ import type { Balances, Currency, Int, Market, OHLCV, Order, OrderBook, OrderSid
  * @augments Exchange
  */
 export default class currencycom extends Exchange {
-    describe () {
+    describe (): any {
         return this.deepExtend (super.describe (), {
             'id': 'currencycom',
             'name': 'Currency.com',
@@ -284,17 +284,20 @@ export default class currencycom extends Exchange {
                         'limit': 500,
                         'daysBack': 100000,
                         'untilDays': 100000, // todo implementation
+                        'symbolRequired': false,
                     },
                     'fetchOrder': {
                         'marginMode': false,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': false,
                     },
                     'fetchOpenOrders': {
                         'marginMode': true,
                         'limit': 100,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': false,
                     },
                     'fetchOrders': undefined,
                     'fetchClosedOrders': undefined,
@@ -383,7 +386,7 @@ export default class currencycom extends Exchange {
      * @param {object} [params] extra parameters specific to the exchange API endpoint
      * @returns {int} the current integer timestamp in milliseconds from the exchange server
      */
-    async fetchTime (params = {}) {
+    async fetchTime (params = {}): Promise<Int> {
         const response = await this.publicGetV2Time (params);
         //
         //     {

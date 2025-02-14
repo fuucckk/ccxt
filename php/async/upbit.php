@@ -12,12 +12,12 @@ use ccxt\ArgumentsRequired;
 use ccxt\AddressPending;
 use ccxt\InvalidOrder;
 use ccxt\Precise;
-use React\Async;
-use React\Promise\PromiseInterface;
+use \React\Async;
+use \React\Promise\PromiseInterface;
 
 class upbit extends Exchange {
 
-    public function describe() {
+    public function describe(): mixed {
         return $this->deep_extend(parent::describe(), array(
             'id' => 'upbit',
             'name' => 'Upbit',
@@ -197,12 +197,14 @@ class upbit extends Exchange {
                         'marginMode' => false,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                     ),
                     'fetchOpenOrders' => array(
                         'marginMode' => true,
                         'limit' => 100,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                     ),
                     'fetchOrders' => null, // todo
                     'fetchClosedOrders' => array(
@@ -213,6 +215,7 @@ class upbit extends Exchange {
                         'untilDays' => 7,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                     ),
                     'fetchOHLCV' => array(
                         'limit' => 200,
@@ -607,7 +610,7 @@ class upbit extends Exchange {
         }) ();
     }
 
-    public function fetch_order_books(?array $symbols = null, ?int $limit = null, $params = array ()) {
+    public function fetch_order_books(?array $symbols = null, ?int $limit = null, $params = array ()): PromiseInterface {
         return Async\async(function () use ($symbols, $limit, $params) {
             /**
              *
