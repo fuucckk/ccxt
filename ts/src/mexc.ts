@@ -15,7 +15,7 @@ import type { TransferEntry, IndexType, Int, OrderSide, Balances, OrderType, OHL
  * @augments Exchange
  */
 export default class mexc extends Exchange {
-    describe () {
+    describe (): any {
         return this.deepExtend (super.describe (), {
             'id': 'mexc',
             'name': 'MEXC Global',
@@ -714,17 +714,20 @@ export default class mexc extends Exchange {
                         'limit': 100,
                         'daysBack': 30,
                         'untilDays': undefined,
+                        'symbolRequired': true,
                     },
                     'fetchOrder': {
                         'marginMode': false,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': true,
                     },
                     'fetchOpenOrders': {
                         'marginMode': true,
                         'limit': undefined,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': true,
                     },
                     'fetchOrders': {
                         'marginMode': true,
@@ -733,6 +736,7 @@ export default class mexc extends Exchange {
                         'untilDays': 7,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': true,
                     },
                     'fetchClosedOrders': {
                         'marginMode': true,
@@ -742,6 +746,7 @@ export default class mexc extends Exchange {
                         'untilDays': 7,
                         'trigger': false,
                         'trailing': false,
+                        'symbolRequired': true,
                     },
                     'fetchOHLCV': {
                         'limit': 1000,
@@ -1006,7 +1011,7 @@ export default class mexc extends Exchange {
      * @param {object} [params] extra parameters specific to the exchange API endpoint
      * @returns {int} the current integer timestamp in milliseconds from the exchange server
      */
-    async fetchTime (params = {}) {
+    async fetchTime (params = {}): Promise<Int> {
         const [ marketType, query ] = this.handleMarketTypeAndParams ('fetchTime', undefined, params);
         let response = undefined;
         if (marketType === 'spot') {
@@ -2255,10 +2260,8 @@ export default class mexc extends Exchange {
         if (!market['spot']) {
             throw new NotSupported (this.id + ' createMarketBuyOrderWithCost() supports spot orders only');
         }
-        const req = {
-            'cost': cost,
-        };
-        return await this.createOrder (symbol, 'market', 'buy', 0, undefined, this.extend (req, params));
+        params['cost'] = cost;
+        return await this.createOrder (symbol, 'market', 'buy', 0, undefined, params);
     }
 
     /**
@@ -2277,10 +2280,8 @@ export default class mexc extends Exchange {
         if (!market['spot']) {
             throw new NotSupported (this.id + ' createMarketBuyOrderWithCost() supports spot orders only');
         }
-        const req = {
-            'cost': cost,
-        };
-        return await this.createOrder (symbol, 'market', 'sell', 0, undefined, this.extend (req, params));
+        params['cost'] = cost;
+        return await this.createOrder (symbol, 'market', 'sell', 0, undefined, params);
     }
 
     /**
@@ -2301,7 +2302,7 @@ export default class mexc extends Exchange {
      * @param {bool} [params.postOnly] if true, the order will only be posted if it will be a maker order
      * @param {bool} [params.reduceOnly] *contract only* indicates if this order is to reduce the size of a position
      * @param {bool} [params.hedged] *swap only* true for hedged mode, false for one way mode, default is false
-     *
+     * @param {string} [params.timeInForce] 'IOC' or 'FOK', default is 'GTC'
      * EXCHANGE SPECIFIC PARAMETERS
      * @param {int} [params.leverage] *contract only* leverage is necessary on isolated margin
      * @param {long} [params.positionId] *contract only* it is recommended to fill in this parameter when closing a position
@@ -2366,6 +2367,15 @@ export default class mexc extends Exchange {
         [ postOnly, params ] = this.handlePostOnly (type === 'market', type === 'LIMIT_MAKER', params);
         if (postOnly) {
             request['type'] = 'LIMIT_MAKER';
+        }
+        const tif = this.safeString (params, 'timeInForce');
+        if (tif !== undefined) {
+            params = this.omit (params, 'timeInForce');
+            if (tif === 'IOC') {
+                request['type'] = 'IMMEDIATE_OR_CANCEL';
+            } else if (tif === 'FOK') {
+                request['type'] = 'FILL_OR_KILL';
+            }
         }
         return this.extend (request, params);
     }
@@ -4852,7 +4862,7 @@ export default class mexc extends Exchange {
             const rawNetwork = this.safeString (params, 'network');
             if (rawNetwork !== undefined) {
                 params = this.omit (params, 'network');
-                request['coin'] += '-' + rawNetwork;
+                request['coin'] = request['coin'] + '-' + rawNetwork;
             }
         }
         if (since !== undefined) {

@@ -14,12 +14,12 @@ use ccxt\BadSymbol;
 use ccxt\InvalidOrder;
 use ccxt\NotSupported;
 use ccxt\Precise;
-use React\Async;
-use React\Promise\PromiseInterface;
+use \React\Async;
+use \React\Promise\PromiseInterface;
 
 class hitbtc extends Exchange {
 
-    public function describe() {
+    public function describe(): mixed {
         return $this->deep_extend(parent::describe(), array(
             'id' => 'hitbtc',
             'name' => 'HitBTC',
@@ -326,12 +326,14 @@ class hitbtc extends Exchange {
                         'limit' => 1000,
                         'daysBack' => 100000,
                         'untilDays' => 100000,
+                        'symbolRequired' => false,
                         'marketType' => true,
                     ),
                     'fetchOrder' => array(
                         'marginMode' => true,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                         'marketType' => true,
                     ),
                     'fetchOpenOrders' => array(
@@ -339,6 +341,7 @@ class hitbtc extends Exchange {
                         'limit' => 1000,
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                         'marketType' => true,
                     ),
                     'fetchOrders' => null,
@@ -350,6 +353,7 @@ class hitbtc extends Exchange {
                         'untilDays' => 100000, // todo
                         'trigger' => false,
                         'trailing' => false,
+                        'symbolRequired' => false,
                         'marketType' => true,
                     ),
                     'fetchOHLCV' => array(
@@ -1452,7 +1456,6 @@ class hitbtc extends Exchange {
         $fee = null;
         $feeCostString = $this->safe_string($trade, 'fee');
         $taker = $this->safe_value($trade, 'taker');
-        $takerOrMaker = null;
         if ($taker !== null) {
             $takerOrMaker = $taker ? 'taker' : 'maker';
         } else {
@@ -1694,7 +1697,7 @@ class hitbtc extends Exchange {
         }) ();
     }
 
-    public function fetch_order_books(?array $symbols = null, ?int $limit = null, $params = array ()) {
+    public function fetch_order_books(?array $symbols = null, ?int $limit = null, $params = array ()): PromiseInterface {
         return Async\async(function () use ($symbols, $limit, $params) {
             /**
              * fetches information on open orders with bid (buy) and ask (sell) prices, volumes and other data for multiple markets

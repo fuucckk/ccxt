@@ -42,7 +42,7 @@ export default class bybit extends Exchange {
      * @param {object} [params] extra parameters specific to the exchange API endpoint
      * @returns {int} the current integer timestamp in milliseconds from the exchange server
      */
-    fetchTime(params?: {}): Promise<number>;
+    fetchTime(params?: {}): Promise<Int>;
     /**
      * @method
      * @name bybit#fetchCurrencies
@@ -61,9 +61,9 @@ export default class bybit extends Exchange {
      * @returns {object[]} an array of objects representing market data
      */
     fetchMarkets(params?: {}): Promise<Market[]>;
-    fetchSpotMarkets(params: any): Promise<any[]>;
-    fetchFutureMarkets(params: any): Promise<any[]>;
-    fetchOptionMarkets(params: any): Promise<any[]>;
+    fetchSpotMarkets(params: any): Promise<Market[]>;
+    fetchFutureMarkets(params: any): Promise<Market[]>;
+    fetchOptionMarkets(params: any): Promise<Market[]>;
     parseTicker(ticker: Dict, market?: Market): Ticker;
     /**
      * @method
